@@ -15,9 +15,13 @@ locals {
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
 
   # Extract the variables we need for easy access
-  account_name = local.account_vars.locals.account_name
-  account_id   = local.account_vars.locals.aws_account_id
-  aws_region   = local.region_vars.locals.aws_region
+  account_name    = local.account_vars.locals.account_name
+  account_id      = local.account_vars.locals.aws_account_id
+  region      = local.region_vars.locals.region
+  domain_name     = local.account_vars.locals.domain_name
+  certificate_arn = local.account_vars.locals.certificate_arn
+  instance_type   = local.environment_vars.locals.instance_type
+  owner           = local.account_vars.locals.owner
 }
 
 # Generate an AWS provider block
@@ -26,7 +30,7 @@ generate "provider" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 provider "aws" {
-  region = "${local.aws_region}"
+  region = "${local.region}"
 
   # Only these AWS Account IDs may be operated on by this template
   allowed_account_ids = ["${local.account_id}"]
@@ -39,9 +43,9 @@ remote_state {
   backend = "s3"
   config = {
     encrypt        = true
-    bucket         = "${get_env("TG_BUCKET_PREFIX", "")}terragrunt-example-terraform-state-${local.account_name}-${local.aws_region}"
+    bucket         = "${get_env("TG_BUCKET_PREFIX", "")}terragrunt-example-terraform-state-${local.account_name}-${local.region}"
     key            = "${path_relative_to_include()}/terraform.tfstate"
-    region         = local.aws_region
+    region         = local.region
     dynamodb_table = "terraform-locks"
   }
   generate = {
