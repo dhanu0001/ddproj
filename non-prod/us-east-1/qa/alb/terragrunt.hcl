@@ -1,10 +1,10 @@
 locals {
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
 
   # Extract out common variables for reuse
-  env = local.environment_vars.locals.environment
+  env             = local.environment_vars.locals.environment
   domain_name     = local.account_vars.locals.domain_name
   certificate_arn = local.account_vars.locals.certificate_arn
   owner           = local.account_vars.locals.owner
@@ -22,25 +22,46 @@ include {
   path = find_in_parent_folders()
 }
 
+dependency "vpc" {
+  config_path = "../vpc"
+  mock_outputs = {
+    vpc_id = "vpc-012341a0dd8b01234"
+    vpc_subnets = [
+      "subnet-003601fe683fd1111",
+      "subnet-0f0787cffc6ae1112",
+      "subnet-00e05034aa90b1112"
+    ],
+  }
+}
+
+dependency "ecs" {
+  config_path = "../ecs"
+  #  mock_outputs = {
+  #    cluster_id = "arn:aws:ecs:us-east-1:067653612345:cluster/app-qa"
+  #    instance_role = "app-qa-instance-role"
+  #    instance_sg_id = "sg-05d46f4416d012345"
+  #  }
+}
+
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration above
 inputs = {
-  version = "~> 1.0.9"
-
-  name               = "app-${local.env}"
-  host_name          = "app-${local.env}"
-  domain_name        = "${local.domain_name}"
-  certificate_arn    = "${local.certificate_arn}"
-
-  tags               = {
+  elb_port        = 80
+  certificate_arn = "${local.certificate_arn}"
+  cluster_id      = dependency.ecs.outputs.cluster_id
+  domain_name     = "${local.domain_name}"
+  host_name       = "app-${local.env}"
+  instance_role   = dependency.ecs.outputs.instance_role
+  instance_sg_id  = dependency.ecs.outputs.instance_sg_id
+  instance_type   = "${local.instance_type}"
+  min_size        = 2
+  max_size        = 2
+  name            = "app-${local.env}"
+  tags = {
     Environment = "${local.env}"
-    Owner = "${local.owner}"
+    Owner       = "${local.owner}"
   }
-
-  instance_type = "${local.instance_type}"
-
-  min_size = 2
-  max_size = 2
-
   server_port = 8080
-  elb_port    = 80
+  version     = "~> 1.0.9"
+  vpc_id      = dependency.vpc.outputs.vpc_id
+  vpc_subnets = dependency.vpc.outputs.private_subnets
 }

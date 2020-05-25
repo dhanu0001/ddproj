@@ -17,7 +17,7 @@ locals {
   # Extract the variables we need for easy access
   account_name    = local.account_vars.locals.account_name
   account_id      = local.account_vars.locals.aws_account_id
-  region      = local.region_vars.locals.region
+  region          = local.region_vars.locals.region
   domain_name     = local.account_vars.locals.domain_name
   certificate_arn = local.account_vars.locals.certificate_arn
   instance_type   = local.environment_vars.locals.instance_type

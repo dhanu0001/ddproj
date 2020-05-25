@@ -1,9 +1,14 @@
 locals {
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  region_vars      = read_terragrunt_config(find_in_parent_folders("region.hcl"))
+  account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
 
   # Extract out common variables for reuse
-  env = local.environment_vars.locals.environment
+  env            = local.environment_vars.locals.environment
+  owner          = local.account_vars.locals.owner
+  region         = local.region_vars.locals.region
+  container_name = "nginx"
 }
 
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
@@ -21,12 +26,13 @@ include {
 inputs = {
   version = "~> 1.0.9"
 
-  name = "app-${local.env}"
-  container_name       = "nginx"
-  container_port       = "80"
-  log_groups           = ["app-dev-nginx"]
-  tags                 = {
-    Environment = "dev"
-    Owner = "me"
+  name           = "app-${local.env}"
+  region         = "${local.region}"
+  container_name = "${local.container_name}"
+  container_port = "80"
+  log_groups     = ["app-${local.env}-${local.container_name}"]
+  tags = {
+    Environment = "${local.env}"
+    Owner       = "${local.owner}"
   }
 }
