@@ -2,4 +2,6 @@
 # feed forward to the child modules.
 locals {
   environment = "prod"
+  # TODO: change to appropriate instance_type
+  instance_type = "t2.micro"
 }
