@@ -1,17 +1,15 @@
-[![Maintained by Gruntwork.io](https://img.shields.io/badge/maintained%20by-gruntwork.io-%235849a6.svg)](https://gruntwork.io/?ref=repo_terragrunt-infra-live-example)
-
 # Example infrastructure-live for Terragrunt
 
-This repo, along with the [terragrunt-infrastructure-modules-example
-repo](https://github.com/gruntwork-io/terragrunt-infrastructure-modules-example), show an example file/folder structure
+This repo, along with the [terragrunt-ecs-modules
+repo](https://github.com/itmustbejj/terragrunt-ecs-modules), show an example file/folder structure
 you can use with [Terragrunt](https://github.com/gruntwork-io/terragrunt) to keep your
 [Terraform](https://www.terraform.io) code DRY. For background information, check out the [Keep your Terraform code
 DRY](https://github.com/gruntwork-io/terragrunt#keep-your-terraform-code-dry) section of the Terragrunt documentation.
 
-This repo shows an example of how to use the modules from the `terragrunt-infrastructure-modules-example` repo to
-deploy an Auto Scaling Group (ASG) and a MySQL DB across three environments (qa, stage, prod) and two AWS accounts
+This repo shows an example of how to use the modules from the `terragrunt-ecs-modules` repo to
+deploy an ECS cluster, w/ supporting ALB and VPC across three environments (qa, stage, prod) and two AWS accounts
 (non-prod, prod), all without duplicating any of the Terraform code. That's because there is just a single copy of
-the Terraform code, defined in the `terragrunt-infrastructure-modules-example` repo, and in this repo, we solely define
+the Terraform code, defined in the `terragrunt-ecs-modules` repo, and in this repo, we solely define
 `terragrunt.hcl` files that reference that code (at a specific version, too!) and fill in variables specific to each
 environment.
 
@@ -26,7 +24,7 @@ you are interested in battle-tested, production-ready Terraform code, check out 
 
 ### Pre-requisites
 
-1. Install [Terraform](https://www.terraform.io/) version `0.12.0` or newer and
+1. Install [Terraform](https://www.terraform.io/) version `0.12.18` or newer and
    [Terragrunt](https://github.com/gruntwork-io/terragrunt) version `v0.23.0` or newer.
 1. Update the `bucket` parameter in `non-prod/terragrunt.hcl` and `prod/terragrunt.hcl` to unique names. We use S3
    [as a Terraform backend](https://www.terraform.io/docs/backends/types/s3.html) to store your Terraform state, and
@@ -38,9 +36,7 @@ you are interested in battle-tested, production-ready Terraform code, check out 
 
 ### Deploying a single module
 
-1. `cd` into the module's folder (e.g. `cd non-prod/us-east-1/qa/mysql`).
-1. Note: if you're deploying the MySQL DB, you'll need to configure your DB password as an environment variable:
-   `export TF_VAR_master_password=(...)`.
+1. `cd` into the module's folder (e.g. `cd non-prod/us-east-1/qa/vpc`).
 1. Run `terragrunt plan` to see the changes you're about to apply.
 1. If the plan looks good, run `terragrunt apply`.
 
@@ -48,50 +44,10 @@ you are interested in battle-tested, production-ready Terraform code, check out 
 ### Deploying all modules in a region
 
 1. `cd` into the region folder (e.g. `cd non-prod/us-east-1`).
-1. Configure the password for the MySQL DB as an environment variable: `export TF_VAR_master_password=(...)`.
 1. Run `terragrunt plan-all` to see all the changes you're about to apply.
 1. If the plan looks good, run `terragrunt apply-all`.
 
 
-### Testing the infrastructure after it's deployed
-
-After each module is finished deploying, it will write a bunch of outputs to the screen. For example, the ASG will
-output something like the following:
-
-```
-Outputs:
-
-asg_name = tf-asg-00343cdb2415e9d5f20cda6620
-asg_security_group_id = sg-d27df1a3
-elb_dns_name = webserver-example-prod-1234567890.us-east-1.elb.amazonaws.com
-elb_security_group_id = sg-fe62ee8f
-url = http://webserver-example-prod-1234567890.us-east-1.elb.amazonaws.com:80
-```
-
-A minute or two after the deployment finishes, and the servers in the ASG have passed their health checks, you should
-be able to test the `url` output in your browser or with `curl`:
-
-```
-curl http://webserver-example-prod-1234567890.us-east-1.elb.amazonaws.com:80
-
-Hello, World
-```
-
-Similarly, the MySQL module produces outputs that will look something like this:
-
-```
-Outputs:
-
-arn = arn:aws:rds:us-east-1:1234567890:db:terraform-00d7a11c1e02cf617f80bbe301
-db_name = mysql_prod
-endpoint = terraform-1234567890.abcdefghijklmonp.us-east-1.rds.amazonaws.com:3306
-```
-
-You can use the `endpoint` and `db_name` outputs with any MySQL client:
-
-```
-mysql --host=terraform-1234567890.abcdefghijklmonp.us-east-1.rds.amazonaws.com:3306 --user=admin --password mysql_prod
-```
 
 
 
