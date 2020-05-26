@@ -15,12 +15,12 @@ locals {
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
 
   # Extract the variables we need for easy access
-  account_name    = local.account_vars.locals.account_name
-  account_id      = local.account_vars.locals.aws_account_id
-  region          = local.region_vars.locals.region
-  domain_name     = local.account_vars.locals.domain_name
-  instance_type   = local.environment_vars.locals.instance_type
-  owner           = local.account_vars.locals.owner
+  account_name  = local.account_vars.locals.account_name
+  account_id    = local.account_vars.locals.aws_account_id
+  region        = local.region_vars.locals.region
+  domain_name   = local.account_vars.locals.domain_name
+  instance_type = local.environment_vars.locals.instance_type
+  owner         = local.account_vars.locals.owner
 }
 
 # Generate an AWS provider block
