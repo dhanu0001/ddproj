@@ -16,7 +16,6 @@ locals {
 
   # Extract the variables we need for easy access
   account_name  = local.account_vars.locals.account_name
-  account_id    = local.account_vars.locals.aws_account_id
   region        = local.region_vars.locals.region
   domain_name   = local.account_vars.locals.domain_name
   instance_type = local.environment_vars.locals.instance_type
@@ -32,7 +31,6 @@ provider "aws" {
   region = "${local.region}"
 
   # Only these AWS Account IDs may be operated on by this template
-  allowed_account_ids = ["${local.account_id}"]
 }
 EOF
 }
