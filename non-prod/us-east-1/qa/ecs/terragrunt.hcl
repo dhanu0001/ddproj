@@ -36,8 +36,8 @@ dependency "vpc" {
 inputs = {
   elb_port      = 80
   instance_type = "${local.instance_type}"
-  min_size      = 2
-  max_size      = 2
+  asg_min_size  = 2
+  asg_max_size  = 2
   name          = "app-${local.env}"
   server_port   = 8080
   tags = {
