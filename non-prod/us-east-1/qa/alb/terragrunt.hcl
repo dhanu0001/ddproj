@@ -6,7 +6,6 @@ locals {
   # Extract out common variables for reuse
   env             = local.environment_vars.locals.environment
   domain_name     = local.account_vars.locals.domain_name
-  certificate_arn = local.account_vars.locals.certificate_arn
   owner           = local.account_vars.locals.owner
   instance_type   = local.environment_vars.locals.instance_type
 }
@@ -14,12 +13,21 @@ locals {
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
-  source = "git::git@github.com:itmustbejj/terragrunt-ecs-modules.git//modules/alb?ref=master"
+  source = "git::git@github.com:itmustbejj/terragrunt-ecs-modules.git//alb?ref=master"
 }
 
 # Include all settings from the root terragrunt.hcl file
 include {
   path = find_in_parent_folders()
+}
+
+dependency "ecs" {
+  config_path = "../ecs"
+    mock_outputs = {
+      cluster_id = "arn:aws:ecs:us-east-1:067653612345:cluster/app-qa"
+      instance_role = "app-qa-instance-role"
+      instance_sg_id = "sg-05d46f4416d012345"
+    }
 }
 
 dependency "vpc" {
@@ -34,24 +42,14 @@ dependency "vpc" {
   }
 }
 
-dependency "ecs" {
-  config_path = "../ecs"
-  #  mock_outputs = {
-  #    cluster_id = "arn:aws:ecs:us-east-1:067653612345:cluster/app-qa"
-  #    instance_role = "app-qa-instance-role"
-  #    instance_sg_id = "sg-05d46f4416d012345"
-  #  }
-}
-
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration above
 inputs = {
   elb_port        = 80
-  certificate_arn = "${local.certificate_arn}"
   cluster_id      = dependency.ecs.outputs.cluster_id
   domain_name     = "${local.domain_name}"
   host_name       = "app-${local.env}"
   instance_role   = dependency.ecs.outputs.instance_role
-  instance_sg_id  = dependency.ecs.outputs.instance_sg_id
+  backend_sg_id  = dependency.ecs.outputs.instance_sg_id
   instance_type   = "${local.instance_type}"
   min_size        = 2
   max_size        = 2

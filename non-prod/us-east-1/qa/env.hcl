@@ -2,5 +2,6 @@
 # feed forward to the child modules.
 locals {
   environment   = "qa"
+  # TODO: change to appropriate instance_type
   instance_type = "t2.micro"
 }

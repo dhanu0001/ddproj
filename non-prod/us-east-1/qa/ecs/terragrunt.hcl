@@ -12,7 +12,7 @@ locals {
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
-  source = "git::git@github.com:itmustbejj/terragrunt-ecs-modules.git//modules/ecs?ref=master"
+  source = "git::git@github.com:itmustbejj/terragrunt-ecs-modules.git//ecs?ref=master"
 }
 
 # Include all settings from the root terragrunt.hcl file
