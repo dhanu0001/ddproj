@@ -1,4 +1,4 @@
-# Example infrastructure-live for Terragrunt
+# Example ecs-nginx for Terragrunt
 
 This repo, along with the [terragrunt-ecs-modules
 repo](https://github.com/itmustbejj/terragrunt-ecs-modules), show an example file/folder structure
